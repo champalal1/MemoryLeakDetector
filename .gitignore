@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.git/
+.DS_Store
+
+data/memory_logs.csv
+data/memory_graph_*.png
+data/final_risk_comparison.png
+data/experiment_results.csv
+
+backup/
