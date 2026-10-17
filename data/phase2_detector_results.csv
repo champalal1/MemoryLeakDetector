@@ -1,0 +1,6 @@
+test_case,pid,samples,duration_sec,initial_memory_mb,final_memory_mb,total_growth_mb,growth_rate_mb_sec,trend_slope,risk_score,result
+Continuous Leak - Phase 2 Baseline,837,30,29.19,10.13,39.24,29.11,0.9974,1.0117,76.09,HIGH RISK
+Stable Memory,1385,56,55.5,29.14,29.14,0.0,0.0,-0.0,6.94,NORMAL
+Gradual Leak,1456,40,39.34,9.83,19.8,9.97,0.2534,0.2519,43.47,SUSPICIOUS
+Temporary Memory,1513,57,56.46,209.28,9.28,-200.0,-3.5421,-0.1904,19.56,NORMAL
+Memory Intensive,1583,57,56.51,109.29,109.29,0.0,0.0,-0.1267,19.56,NORMAL

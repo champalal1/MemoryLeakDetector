@@ -1,154 +1,74 @@
 import pandas as pd
 
-
-FILE = "data/experiment_results.csv"
-
+FILE = "data/phase2_detector_results.csv"
 
 def main():
-
     df = pd.read_csv(FILE)
 
-    print("\n======================================")
-    print("       SYSTEM PERFORMANCE")
-    print("======================================")
-
-    print(
-        f"\nTotal experiments : {len(df)}"
-    )
-
-    # Expected behavior
     expected = {
+        "Continuous Leak - Phase 2 Baseline": "LEAK",
         "Stable Memory": "NORMAL",
-        "Continuous Leak": "HIGH_RISK",
-        "Gradual Leak": "SUSPICIOUS",
+        "Gradual Leak": "LEAK",
         "Temporary Memory": "NORMAL",
-        "Memory Intensive": "NORMAL"
+        "Memory Intensive": "NORMAL",
     }
 
-    correct = 0
-
-    for _, row in df.iterrows():
-
-        test = row["test_case"]
-        actual = row["result"]
-
-        expected_result = expected.get(
-            test
-        )
-
-        if actual == expected_result:
-            correct += 1
-
-    accuracy = (
-        correct / len(df)
-    ) * 100
-
-    print(
-        f"Correct classifications: "
-        f"{correct}/{len(df)}"
+    detected_labels = {
+        "SUSPICIOUS",
+        "HIGH RISK",
+        "POTENTIAL MEMORY LEAK",
+        "POTENTIAL_LEAK",
+    }
+    df["expected"] = df["test_case"].map(expected)
+    df["result_clean"] = df["result"].astype(str).str.strip().str.upper()
+    df["detected_leak"] = df["result_clean"].isin(detected_labels)
+    df["predicted"] = df["detected_leak"].map(
+        {True: "LEAK", False: "NORMAL"}
     )
 
-    print(
-        f"Detection accuracy: "
-        f"{accuracy:.2f}%"
+    known = df.dropna(subset=["expected"])
+    correct = (known["expected"] == known["predicted"]).sum()
+    accuracy = correct / len(known) * 100 if len(known) else 0
+
+    normal = known[known["expected"] == "NORMAL"]
+    leaks = known[known["expected"] == "LEAK"]
+
+    false_positives = normal["detected_leak"].sum()
+    false_positive_rate = (
+        false_positives / len(normal) * 100 if len(normal) else 0
     )
 
-    # False positives
-    normal_tests = df[
-        df["test_case"].isin([
-            "Stable Memory",
-            "Temporary Memory",
-            "Memory Intensive"
-        ])
-    ]
-
-    false_positives = normal_tests[
-        normal_tests["result"] != "NORMAL"
-    ]
-
-    if len(normal_tests) > 0:
-
-        false_positive_rate = (
-            len(false_positives) /
-            len(normal_tests)
-        ) * 100
-
-    else:
-
-        false_positive_rate = 0
-
-    print(
-        f"False positive rate: "
-        f"{false_positive_rate:.2f}%"
-    )
-
-    # Leak detection
-    leak_tests = df[
-        df["test_case"].isin([
-            "Continuous Leak",
-            "Gradual Leak"
-        ])
-    ]
-
-    detected = leak_tests[
-        leak_tests["result"].isin([
-            "POTENTIAL_LEAK",
-            "HIGH_RISK",
-            "SUSPICIOUS"
-        ])
-    ]
-
-    if len(leak_tests) > 0:
-
-        detection_rate = (
-            len(detected) /
-            len(leak_tests)
-        ) * 100
-
-    else:
-
-        detection_rate = 0
-
-    print(
-        f"Leak detection rate: "
-        f"{detection_rate:.2f}%"
-    )
-
-    # Average duration
-    avg_duration = df[
-        "duration_sec"
-    ].mean()
-
-    print(
-        f"Average experiment duration: "
-        f"{avg_duration:.2f} sec"
-    )
-
-    # Memory growth
-    avg_growth = df[
-        "total_growth_mb"
-    ].mean()
-
-    print(
-        f"Average memory growth: "
-        f"{avg_growth:.2f} MB"
+    true_positives = leaks["detected_leak"].sum()
+    detection_rate = (
+        true_positives / len(leaks) * 100 if len(leaks) else 0
     )
 
     print("\n======================================")
-    print("             TEST SUMMARY")
+    print(" PHASE 2 DETECTOR PERFORMANCE")
     print("======================================")
+    print(f"Experiments evaluated: {len(known)}")
+    print(f"Correct classifications: {correct}/{len(known)}")
+    print(f"Binary classification accuracy: {accuracy:.2f}%")
+    print(
+        f"Leak detection rate: {detection_rate:.2f}% "
+        f"({true_positives}/{len(leaks)})"
+    )
+    print(
+        f"False-positive rate: {false_positive_rate:.2f}% "
+        f"({false_positives}/{len(normal)})"
+    )
 
-    for _, row in df.iterrows():
-
+    print("\nIndividual results:")
+    for _, row in known.iterrows():
         print(
-            f"{row['test_case']:<20} "
-            f"{row['result']:<12} "
-            f"Score: "
-            f"{row['leak_score']:.2f}"
+            f"{row['test_case']:<38} "
+            f"Expected: {row['expected']:<6} "
+            f"Predicted: {row['predicted']:<6} "
+            f"Score: {row['risk_score']:.2f}"
         )
 
+    print("\nNote: Metrics are preliminary and based on one run per scenario.")
     print("======================================\n")
-
 
 if __name__ == "__main__":
     main()
