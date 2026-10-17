@@ -1,0 +1,6 @@
+test_case,pid,initial_memory_mb,final_memory_mb,total_growth_mb,growth_rate_mb_sec,leak_score,result,samples,duration_sec,trend_slope
+Stable Memory,7468,29.04,29.04,0.00,0.0000,5.41,NORMAL,44,43.28,0.0000
+Continuous Leak,7577,10.09,43.22,33.13,0.9983,79.01,HIGH_RISK,34,33.18,1.0039
+Gradual Leak,7703,9.84,34.78,24.94,0.2555,59.87,SUSPICIOUS,98,97.61,0.2574
+Temporary Memory,7788,209.17,9.16,-200.01,-2.0083,14.26,NORMAL,70,99.59,-2.1175
+Memory Intensive,8208,109.27,109.27,0.00,0.0000,14.93,NORMAL,118,117.73,-0.0099
