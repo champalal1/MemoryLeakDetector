@@ -1,15 +1,23 @@
+# Python virtual environment
 venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+.venv/
 
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Git and OS files
 .git/
 .DS_Store
 
+# Live and generated experimental data
 data/memory_logs.csv
-data/memory_graph_*.png
-data/final_risk_comparison.png
 data/experiment_results.csv
+data/archive/
 
+# Generated visualizations
+visualizations/
+
+# Backups
 backup/

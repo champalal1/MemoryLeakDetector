@@ -1,119 +1,176 @@
 # Memory Leak Detection and Prevention System
 
-## Overview
+A Python-based system for monitoring process memory usage, detecting potential memory leaks using heuristic risk scoring, and providing prevention recommendations through an interactive Streamlit dashboard.
 
-The Memory Leak Detection and Prevention System is an Operating Systems project designed to monitor process memory usage, analyze memory growth patterns, and identify potential memory leaks.
+## Project Overview
 
-The system continuously collects process-level memory information and stores the observations in a CSV log. The collected data is analyzed using memory growth, growth rate, trend analysis, and a weighted leak risk score.
+Memory leaks can cause applications to consume increasing amounts of memory over time, potentially reducing system performance or causing instability.
 
-The system classifies processes into categories such as:
+This project monitors process memory usage, analyzes memory-growth patterns, assigns risk classifications, and provides alerts to help investigate suspicious behavior.
 
-- NORMAL
-- SUSPICIOUS
-- HIGH RISK / POTENTIAL LEAK
+## Features
 
-## Objectives
+- **Process monitoring:** Collects process memory usage using `psutil`.
+- **Risk analysis:** Evaluates memory growth, consistency, trend, duration, and growth rate.
+- **Interactive dashboard:** Displays process metrics, risk classifications, and memory usage charts.
+- **Automatic refresh:** Periodically refreshes dashboard data.
+- **Risk alerts:** Highlights suspicious, high-risk, and potential memory-leak classifications.
+- **Prevention safeguards:** Checks system and process memory thresholds and provides recommendations.
+- **CSV exports:** Downloads risk summaries and memory measurements.
+- **Experimental testing:** Includes controlled workloads for continuous leaks, gradual leaks, stable memory, temporary allocations, and memory-intensive behavior.
+- **Performance evaluation:** Includes tools for analyzing detector performance and monitoring overhead.
 
-### Phase 1
+## Technology Stack
 
-- Study existing memory leak detection techniques.
-- Monitor process-level memory usage.
-- Define memory usage and leak detection metrics.
-- Design and implement a prototype memory leak detection system.
-
-### Phase 2
-
-- Test the system using memory-intensive applications.
-- Detect and analyze memory growth under different scenarios.
-- Optimize the detection algorithm.
-- Evaluate detection accuracy and false-positive rate.
-- Measure CPU and memory overhead.
-- Validate the system using a memory-intensive workload.
-
-## System Architecture
-
-The system consists of the following modules:
-
-1. Process Monitor
-2. Memory Logger
-3. Memory Data Storage
-4. Leak Analyzer
-5. Risk Score Calculator
-6. Visualization Module
-7. Experiment and Performance Analysis Module
-
-## Detection Metrics
-
-The system evaluates memory behavior using:
-
-- Initial memory usage
-- Final memory usage
-- Total memory growth
-- Memory growth rate
-- Memory trend slope
-- Growth consistency
-- Monitoring duration
-- Leak risk score
-
-## Risk Classification
-
-The prototype uses a 0–100 leak risk score.
-
-The score is used to identify:
-
-- NORMAL memory behavior
-- SUSPICIOUS memory growth
-- HIGH RISK / POTENTIAL MEMORY LEAK
-
-## Experimental Evaluation
-
-The system was evaluated using five controlled scenarios:
-
-| Test Case | Result |
-|---|---|
-| Stable Memory | NORMAL |
-| Continuous Leak | HIGH RISK |
-| Gradual Leak | SUSPICIOUS |
-| Temporary Memory | NORMAL |
-| Memory Intensive | NORMAL |
-
-### Measured Results
-
-- Controlled test classifications: 5/5
-- Detection accuracy: 100%
-- False-positive rate: 0%
-- Leak detection rate: 100%
-- Average CPU usage: 0.68%
-- Maximum CPU usage: 7.00%
-- Average RAM usage: 13.89 MB
-- Maximum RAM usage: 13.90 MB
-
-The accuracy values above apply to the five controlled experimental scenarios evaluated during this project and should not be interpreted as universal real-world accuracy.
+- Python
+- psutil
+- NumPy
+- pandas
+- Streamlit
+- Matplotlib and other visualization dependencies used by the project
 
 ## Project Structure
 
 ```text
 MemoryLeakDetector/
-│
 ├── main.py
 ├── monitor.py
-├── logger.py
 ├── detector.py
-├── visualize.py
+├── prevention.py
+├── logger.py
+├── dashboard.py
 ├── experiment_runner.py
 ├── performance.py
 ├── final_results.py
 ├── overhead_test.py
-│
+├── visualize.py
 ├── tests/
+│   ├── memory_leak.py
+│   ├── gradual_leak.py
+│   ├── stable_memory.py
 │   ├── temporary_memory.py
 │   └── memory_intensive.py
-│
 ├── data/
 │   ├── memory_logs.csv
 │   ├── experiment_results.csv
-│   ├── memory graphs
-│   └── final_risk_comparison.png
-│
+│   ├── phase2_detector_results.csv
+│   └── archive/
+├── reports/
+│   └── phase2_validation_report.md
+├── visualizations/
+├── backup/
 ├── requirements.txt
 └── README.md
+```
+
+## Installation
+
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/champalal1/MemoryLeakDetector.git
+cd MemoryLeakDetector
+```
+
+Create and activate a virtual environment on Ubuntu or WSL:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Running the System
+
+### 1. Start process monitoring
+
+```bash
+python main.py
+```
+
+The monitoring process records memory measurements in `data/memory_logs.csv`. Stop monitoring with `Ctrl+C`.
+
+### 2. Start the dashboard
+
+Open another terminal, activate the virtual environment, and run:
+
+```bash
+streamlit run dashboard.py
+```
+
+Open the local URL printed by Streamlit, normally `http://localhost:8501`.
+
+Keep the monitoring process running to collect new measurements. The dashboard refreshes periodically and displays the latest data available in the log.
+
+### 3. Run controlled experiments
+
+Example:
+
+```bash
+python tests/stable_memory.py
+python tests/memory_intensive.py
+python tests/temporary_memory.py
+python tests/gradual_leak.py
+python tests/memory_leak.py
+```
+
+Some workloads run continuously. Stop them with `Ctrl+C` after an appropriate test interval, and avoid running multiple memory-intensive tests simultaneously.
+
+## Risk Classification
+
+The detector assigns heuristic risk scores from 0 to 100.
+
+| Score | Classification |
+|---:|---|
+| 0–30 | NORMAL |
+| Above 30–40 | LOW RISK |
+| Above 40–60 | SUSPICIOUS |
+| Above 60–80 | HIGH RISK |
+| Above 80 | POTENTIAL MEMORY LEAK |
+
+The classifications indicate patterns that deserve investigation; they do not prove that a process has a memory leak.
+
+## Prevention Safeguards
+
+The current safeguards include configurable system-memory and process-memory thresholds, alerts, and recommendations.
+
+- Default system memory warning threshold: 85%.
+- Default process RSS warning threshold: 500 MB.
+
+These are configurable warning thresholds, not universal limits. High memory usage alone does not prove a leak. The current implementation provides recommendations and does not automatically terminate processes or repair application memory leaks.
+
+## Experimental Evaluation
+
+The project includes controlled workloads and recorded experiments for evaluating memory growth patterns, risk classification, and monitoring overhead.
+
+Detailed validation notes and existing visualizations are stored in:
+
+- `reports/phase2_validation_report.md`
+- `visualizations/`
+
+Results should be interpreted in the context of the tested workloads and environment. The existing experiments are preliminary and do not establish general performance across all applications.
+
+## Limitations
+
+- The detector uses heuristic scoring rather than definitive proof of a memory leak.
+- Controlled test workloads do not represent every real-world application.
+- Processes outside the monitoring selection may not be recorded.
+- Prevention safeguards provide warnings and recommendations rather than automatic remediation.
+- Detection accuracy and false-positive rates require further independent validation.
+
+## Future Improvements
+
+- Expand validation using more applications and workload types.
+- Improve detection calibration and false-positive analysis.
+- Add historical risk-score persistence and reporting.
+- Add configurable alert thresholds and notification mechanisms.
+- Explore safe, application-specific remediation strategies.
+
+## Author
+
+Developed as an operating systems project focused on memory monitoring, leak-risk detection, and prevention safeguards.
